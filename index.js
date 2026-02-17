@@ -6,10 +6,16 @@ import dotenv from "dotenv"
 dotenv.config()
 
 const app = express()
-app.use(cors())
+app.use(cors(
+))
 
+
+app.get("/", (req, res) => {
+  res.send("Hello World!")
+})
 
 app.use(express.json())
+
 app.use("/api/auth", authRoutes)
 
 app.listen(process.env.PORT, () => {
