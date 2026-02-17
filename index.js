@@ -7,12 +7,24 @@ dotenv.config()
 
 const app = express()
 
+const allowedOrigins = [
+  "http://localhost:3000",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json())
-app.use(cors({
-  origin: "http://localhost:3000", // ya "*" sab allow karne ke liye (dev me)
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}))
 
 
 
