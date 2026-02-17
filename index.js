@@ -7,26 +7,16 @@ dotenv.config()
 
 const app = express()
 
-const allowedOrigins = [
-  "http://localhost:3000",
-];
-
+// Sab domains ke liye allow
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
+    origin: "*", // koi bhi domain allow
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    // credentials: true // cookies/session use nahi kar rahe to hata do
   })
-);
+)
 
 app.use(express.json())
-
-
 
 app.get("/", (req, res) => {
   res.send("Hello World!")
