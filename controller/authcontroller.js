@@ -1,4 +1,4 @@
-import { sendLoginAlert } from "../utils/loginAlert.js"
+import sendLoginAlert from "../utils/loginAlert.js";
 
 export const loginUser = async (req, res) => {
   const { stuId, password, email } = req.body
