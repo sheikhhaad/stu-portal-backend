@@ -1,8 +1,25 @@
-import express from "express"
-import { loginUser } from "../controller/authcontroller.js"
+import express from "express";
+import {
+  getAllStudent,
+  getStudentById,
+  getTeacherByCourseId,
+  loginStudent,
+  loginTeacher,
+  logoutStudent,
+  registerStudent,
+  registerTeacher,
+} from "../controller/authcontroller.js";
 
-const router = express.Router()
+const router = express.Router();
 
-router.post("/login", loginUser)
+router.post("/login", loginStudent);
+router.post("/register", registerStudent);
+router.post("/logout", logoutStudent);
+router.get("/students", getAllStudent);
+router.get("/student/:id", getStudentById);
 
-export default router
+router.post("/teacher/register", registerTeacher);
+router.post("/teacher/login", loginTeacher);
+router.get("/teacher/:id", getTeacherByCourseId);
+
+export default router;
