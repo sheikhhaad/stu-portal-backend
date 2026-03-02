@@ -8,7 +8,7 @@ import queryRoutes from "./routes/queryroute.js";
 import courseRoutes from "./routes/courseroute.js";
 import enrollmentRoutes from "./routes/enrollmentroute.js";
 import messageRoutes from "./routes/messageroute.js";
-import availableroutes  from "./routes/availabilityRoutes.js";
+import availableroutes from "./routes/availabilityRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -16,8 +16,11 @@ connectDB();
 // Sab domains ke liye allow
 app.use(
   cors({
-    origin: "https://stu-portal-frontend.vercel.app", // frontend origin
-    credentials: true, // <--- must be true
+    origin: [
+      "https://stu-portal-frontend.vercel.app",
+      "http://localhost:3000", // adjust port if your frontend runs on another port
+    ],
+    credentials: true,
   }),
 );
 app.use(cookieParser());
