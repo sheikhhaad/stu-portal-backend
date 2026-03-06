@@ -21,10 +21,6 @@ const teacherAvailabilitySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    is_booked: {
-      type: Boolean,
-      default: false,
-    },
   },
   { timestamps: true },
 );

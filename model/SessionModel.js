@@ -1,3 +1,5 @@
+// models/SessionModel.js
+
 import mongoose from "mongoose";
 
 const sessionBookingSchema = new mongoose.Schema(
@@ -14,9 +16,15 @@ const sessionBookingSchema = new mongoose.Schema(
       required: true,
     },
 
-    duration: {
-      type: Number, // 15 or 30
+    slot_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TeacherAvailability",
       required: true,
+    },
+
+    duration: {
+      type: Number,
+      default: 15,
     },
 
     requested_time: {
@@ -26,32 +34,41 @@ const sessionBookingSchema = new mongoose.Schema(
 
     session_start: {
       type: String,
+      required: true,
     },
 
     session_end: {
       type: String,
+      required: true,
     },
+
     meeting_link: {
       type: String,
-      required: true,
     },
-    slot_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "TeacherAvailability",
-      required: true,
-    },
+
     meeting_id: {
       type: String,
     },
+
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected", "completed"],
+      enum: ["pending", "accepted"],
       default: "pending",
     },
   },
   { timestamps: true },
 );
 
-const SessionBooking = mongoose.model("SessionBooking", sessionBookingSchema);
+// double booking protection
+sessionBookingSchema.index(
+  {
+    teacher_id: 1,
+    session_start: 1,
+  },
+  {
+    unique: true,
+    partialFilterExpression: { status: "accepted" },
+  },
+);
 
-export default SessionBooking;
+export default mongoose.model("SessionBooking", sessionBookingSchema);

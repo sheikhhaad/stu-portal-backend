@@ -52,14 +52,26 @@ export const updateQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const { answer, status } = req.body;
-
     const updatedQuery = await Query.findByIdAndUpdate(
       id,
       { answer, status },
-      { new: true },
+      { returnDocument: "after" },
     );
 
     res.json(updatedQuery);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getTeacherCourseQueries = async (req, res) => {
+  try {
+    const { teacherId, courseId } = req.params;
+    const queries = await Query.find({
+      teacher_id: teacherId,
+      course_id: courseId,
+    });
+    res.json(queries);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
