@@ -15,7 +15,7 @@ export const createAvailability = async (req, res) => {
       teacher_id,
       date,
       start_time,
-      end_time
+      end_time,
     });
 
     if (existing) {
@@ -26,11 +26,10 @@ export const createAvailability = async (req, res) => {
       teacher_id,
       date,
       start_time,
-      end_time
+      end_time,
     });
 
     res.status(201).json(slot);
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -39,12 +38,22 @@ export const getTeacherAvailability = async (req, res) => {
   try {
     const { teacherId } = req.params;
 
-    const slots = await TeacherAvailability
-      .find({ teacher_id: teacherId })
-      .sort({ date: 1, start_time: 1 });
+    const slots = await TeacherAvailability.find({
+      teacher_id: teacherId,
+    }).sort({ date: 1, start_time: 1 });
 
     res.json(slots);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
+
+export const deleteAvailability = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedSlot = await TeacherAvailability.findByIdAndDelete(id);
+      res.json(deletedSlot);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

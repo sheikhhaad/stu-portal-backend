@@ -6,7 +6,7 @@ export const createAnnouncement = async (req, res) => {
     const announcement = await Announcement.create({
       teacher_id,
       course_id,
-      text,
+      text
     });
     res.json(announcement);
   } catch (error) {
