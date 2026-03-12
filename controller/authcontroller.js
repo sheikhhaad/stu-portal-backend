@@ -161,13 +161,34 @@ export const loginTeacher = async (req, res) => {
   }
 };
 
-export const getTeacherById = async (req, res) => {
+export const getTeacher = async (req, res) => {
   try {
     const teacher = await Teacher.findOne({ _id: req.user.id });
     console.log(req.user);
     if (!teacher) {
       return res.status(404).json({ msg: "Teacher not found" });
     }
+    res.status(200).json({ teacher });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Failed to fetch teacher" });
+  }
+};
+
+
+export const getTeacherByCourseId = async (req, res) => {
+  try {
+    const { id } = req.params;
+console.log(id);
+
+    const teacher = await Teacher.findOne({ course_id: id });
+
+    console.log(req.user);
+
+    if (!teacher) {
+      return res.status(404).json({ msg: "Teacher not found" });
+    }
+
     res.status(200).json({ teacher });
   } catch (error) {
     console.error(error);
