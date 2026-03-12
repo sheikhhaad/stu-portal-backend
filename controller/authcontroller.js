@@ -1,33 +1,39 @@
 import Student from "../model/StudentModel.js";
 import sendLoginAlert from "../utils/loginAlert.js";
 import Teacher from "../model/TeacherModel.js";
-
+import jwt from "jsonwebtoken";
 export const registerStudent = async (req, res) => {
-  let { rollNumber, password, email, cnic } = req.body;
+  const { rollNumber, password, email, cnic } = req.body;
+
   if (!rollNumber || !password || !email || !cnic) {
-    return res.status(400).json({ msg: "Please enter all fields" });
+    return res.status(400).json({ msg: "All fields required" });
   }
 
   try {
-    let student = await Student.findOne({ rollNumber });
-    if (student) {
-      return res.status(400).json({ msg: "Student already exists" });
+    const exists = await Student.findOne({ rollNumber });
+
+    if (exists) {
+      return res.status(400).json({ msg: "Student exists" });
     }
-    student = new Student({ rollNumber, password, email, cnic });
-    await student.save();
-    res.json({ msg: "Student registered successfully", status: 200 });
+
+    const student = await Student.create({
+      rollNumber,
+      password,
+      email,
+      cnic,
+    });
+
+    res.status(201).json({
+      msg: "Student registered",
+      student,
+    });
   } catch (error) {
-    console.error("Error registering student:", error);
-    res.json({ msg: "Registration failed (Alert failed)", status: 500 });
+    res.status(500).json({ msg: "Registration failed" });
   }
 };
 
 export const loginStudent = async (req, res) => {
   const { rollNumber, password } = req.body;
-
-  if (!rollNumber) {
-    return res.status(400).json({ msg: "rollNumber required" });
-  }
 
   try {
     const student = await Student.findOne({ rollNumber });
@@ -36,63 +42,46 @@ export const loginStudent = async (req, res) => {
       return res.status(404).json({ msg: "Student not found" });
     }
 
-    // QR login (no password sent)
-    if (!password) {
-      await sendLoginAlert(req, student.email);
-
-      // Set cookie (id for session)
-      res.cookie("studentAuth", student._id, {
-        httpOnly: true,
-        maxAge: 60 * 60 * 1000,
-        sameSite: "strict",
-      });
-
-      return res.status(200).json({
-        msg: "QR login success",
-        student: {
-          rollNumber: student.rollNumber,
-          email: student.email,
-          cnic: student.cnic,
-          _id: student._id,
-        },
-      });
-    }
-
-    // Normal login
-    if (password !== student.password) {
+    if (password && password !== student.password) {
       return res.status(401).json({ msg: "Wrong password" });
     }
 
     await sendLoginAlert(req, student.email);
 
-    // Set cookie
-    res.cookie("studentAuth", student._id, {
+    const token = jwt.sign(
+      { id: student._id, role: "student" },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" },
+    );
+
+    res.cookie("token", token, {
       httpOnly: true,
+      secure: true,
+      sameSite: "none",
       maxAge: 60 * 60 * 1000,
-      sameSite: "strict",
     });
 
-    return res.status(200).json({
+    res.status(200).json({
       msg: "Login success",
       student: {
+        _id: student._id,
         rollNumber: student.rollNumber,
         email: student.email,
         cnic: student.cnic,
-        _id: student._id,
       },
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ msg: "Login failed" });
+    res.status(500).json({ msg: "Login failed" });
   }
 };
-export const logoutStudent = async (req, res) => {
-  res.clearCookie("studentAuth");
+
+export const logoutStudent = (req, res) => {
+  res.clearCookie("token");
+
   res.status(200).json({
     msg: "Logout success",
   });
 };
-
 export const getAllStudent = async (req, res) => {
   try {
     const students = await Student.find();
@@ -104,7 +93,7 @@ export const getAllStudent = async (req, res) => {
 };
 export const getStudentById = async (req, res) => {
   try {
-    const student = await Student.findOne({ rollNumber: req.params.id }); // use the custom ID field
+    const student = await Student.findOne({ _id: req.user.id });
     if (!student) {
       return res.status(404).json({ msg: "Student not found" });
     }
@@ -115,9 +104,6 @@ export const getStudentById = async (req, res) => {
   }
 };
 
-// for teacher
-
-// Teacher register
 export const registerTeacher = async (req, res) => {
   try {
     const { name, email, password, course_id } = req.body;
@@ -150,25 +136,27 @@ export const loginTeacher = async (req, res) => {
     const { email, password } = req.body;
 
     const teacher = await Teacher.findOne({ email });
+    if (!teacher) return res.status(404).json({ msg: "Teacher not found" });
+    if (teacher.password !== password)
+      return res.status(401).json({ msg: "Wrong password" });
 
-    if (!teacher) {
-      return res.status(404).json({ msg: "Teacher not found" });
-    }
+    // JWT sign
+    const token = jwt.sign(
+      { id: teacher._id, role: "teacher" },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" },
+    );
 
-    if (teacher.password !== password) {
-      return res.status(401).json({ msg: "Invalid password" });
-    }
-
-    res.cookie("teacherAuth", teacher._id, {
+    res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
+      maxAge: 60 * 60 * 1000,
     });
 
-    res.status(200).json({
-      msg: "Login success",
-      teacher,
-    });
-  } catch (error) {
+    res.status(200).json({ msg: "Login success", teacher });
+  } catch (err) {
+    console.log("Login error:", err);
     res.status(500).json({ msg: "Login failed" });
   }
 };

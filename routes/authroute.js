@@ -9,6 +9,7 @@ import {
   registerStudent,
   registerTeacher,
 } from "../controller/authcontroller.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -16,10 +17,13 @@ router.post("/login", loginStudent);
 router.post("/register", registerStudent);
 router.post("/logout", logoutStudent);
 router.get("/students", getAllStudent);
-router.get("/student/:id", getStudentById);
+router.get("/student/me",authMiddleware, getStudentById);
 
 router.post("/teacher/register", registerTeacher);
 router.post("/teacher/login", loginTeacher);
-router.get("/teacher/:id", getTeacherByCourseId);
+router.get("/teacher/:id", authMiddleware, getTeacherByCourseId);
+router.post("/user", authMiddleware, (req, res) => {
+  res.json({ message: "Access granted", user: req.user });
+});
 
 export default router;
