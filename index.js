@@ -20,8 +20,7 @@ app.use(
     origin: [
       "https://stu-portal-frontend.vercel.app",
       "http://localhost:3000",
-      "http://localhost:3001", // adjust port if your frontend runs on another port
-      // adjust port if your frontend runs on another port
+      "https://teacher-portal-eta.vercel.app",
     ],
     credentials: true,
   }),
