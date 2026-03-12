@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post("/create", authMiddleware, createCourse);
 router.get("/all", getAllCourses);
-router.get("/:id", authMiddleware, getSingleCourse);
+router.get("/:id", getSingleCourse);
 router.put("/:id", authMiddleware, updateCourse);
 router.delete("/:id", authMiddleware, deleteCourse);
 

@@ -2,7 +2,7 @@ import express from "express";
 import {
   getAllStudent,
   getStudentById,
-  getTeacherByCourseId,
+  getTeacherById,
   loginStudent,
   loginTeacher,
   logoutStudent,
@@ -17,11 +17,11 @@ router.post("/login", loginStudent);
 router.post("/register", registerStudent);
 router.post("/logout", logoutStudent);
 router.get("/students", getAllStudent);
-router.get("/student/me",authMiddleware, getStudentById);
+router.get("/student/me", authMiddleware, getStudentById);
 
 router.post("/teacher/register", registerTeacher);
 router.post("/teacher/login", loginTeacher);
-router.get("/teacher/:id", authMiddleware, getTeacherByCourseId);
+router.get("/teacher/me", authMiddleware, getTeacherById);
 router.post("/user", authMiddleware, (req, res) => {
   res.json({ message: "Access granted", user: req.user });
 });
