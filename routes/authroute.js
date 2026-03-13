@@ -22,8 +22,8 @@ router.get("/student/me", authMiddleware, getStudentById);
 
 router.post("/teacher/register", registerTeacher);
 router.post("/teacher/login", loginTeacher);
-router.get('/teacher/:id', getTeacherByCourseId);
 router.get("/teacher/me", authMiddleware, getTeacher);
+router.get("/teacher/:id", getTeacherByCourseId);
 router.post("/user", authMiddleware, (req, res) => {
   res.json({ message: "Access granted", user: req.user });
 });

@@ -164,7 +164,6 @@ export const loginTeacher = async (req, res) => {
 export const getTeacher = async (req, res) => {
   try {
     const teacher = await Teacher.findOne({ _id: req.user.id });
-    console.log(req.user);
     if (!teacher) {
       return res.status(404).json({ msg: "Teacher not found" });
     }
@@ -179,11 +178,12 @@ export const getTeacher = async (req, res) => {
 export const getTeacherByCourseId = async (req, res) => {
   try {
     const { id } = req.params;
-console.log(id);
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ msg: "Invalid course id" });
+    }
 
     const teacher = await Teacher.findOne({ course_id: id });
-
-    console.log(req.user);
 
     if (!teacher) {
       return res.status(404).json({ msg: "Teacher not found" });
