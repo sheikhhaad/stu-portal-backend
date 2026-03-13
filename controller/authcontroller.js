@@ -2,6 +2,7 @@ import Student from "../model/StudentModel.js";
 import sendLoginAlert from "../utils/loginAlert.js";
 import Teacher from "../model/TeacherModel.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 export const registerStudent = async (req, res) => {
   const { rollNumber, password, email, cnic } = req.body;
 

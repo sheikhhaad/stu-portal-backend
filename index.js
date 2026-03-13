@@ -1,5 +1,7 @@
 import express from "express";
 import authRoutes from "./routes/authroute.js";
+import teacherRoutes from "./routes/teacherroute.js";
+
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
@@ -36,6 +38,8 @@ app.get("/", (req, res) => {
 app.use("/api/availability", availableroutes);
 app.use("/api/session", sessionroutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/auth", teacherRoutes);
+
 app.use("/api/queries", queryRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
