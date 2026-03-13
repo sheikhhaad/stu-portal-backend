@@ -21,8 +21,8 @@ app.use(
   cors({
     origin: [
       "https://stu-portal-frontend.vercel.app",
-      "http://localhost:3000",
       "https://teacher-portal-eta.vercel.app",
+      "http://localhost:3000",
     ],
     credentials: true,
   }),
