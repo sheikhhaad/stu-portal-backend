@@ -77,11 +77,12 @@ export const loginStudent = async (req, res) => {
 };
 
 export const logoutStudent = (req, res) => {
-  res.clearCookie("token");
-
-  res.status(200).json({
-    msg: "Logout success",
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
   });
+  res.status(200).json({ msg: "Logout success" });
 };
 export const getAllStudent = async (req, res) => {
   try {
