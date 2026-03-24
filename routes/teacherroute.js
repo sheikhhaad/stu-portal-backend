@@ -12,6 +12,6 @@ const router = express.Router();
 router.post("/teacher/register", registerTeacher);
 router.post("/teacher/login", loginTeacher);
 router.get("/teacher/me", authMiddleware, getTeacher);
-router.get("/teacher/:id", getTeacherByCourseId);
+router.get("/teacher/:id",authMiddleware, getTeacherByCourseId);
 
 export default router;
