@@ -32,11 +32,6 @@ export const sendMessage = async (req, res) => {
       message,
     });
 
-    // Query status auto update
-    await Query.findByIdAndUpdate(query_id, {
-      status: "pending",
-    });
-
     res.status(201).json(newMessage);
   } catch (error) {
     res.status(500).json({ msg: "Message sending failed" });

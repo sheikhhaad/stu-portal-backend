@@ -6,7 +6,7 @@ export const createAnnouncement = async (req, res) => {
     const announcement = await Announcement.create({
       teacher_id,
       course_id,
-      text
+      text,
     });
     res.json(announcement);
   } catch (error) {
@@ -31,6 +31,26 @@ export const getTeacherAnnouncements = async (req, res) => {
       course_id: courseId,
     });
     res.json(announcements);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteAnnouncement = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const announcement = await Announcement.findByIdAndDelete(id);
+    res.json(announcement);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateAnnouncement = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const announcement = await Announcement.findByIdAndUpdate(id, req.body);
+    res.json(announcement);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
