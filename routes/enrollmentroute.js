@@ -5,6 +5,11 @@ import {
   getCourseEnrollments,
   getStudentEnrollments,
 } from "../controller/enrollementcontroller.js";
+import {
+  createTeacherEnrollment,
+  getTeacherEnrollments,
+} from "../controller/TeacherEnrollment.js";
+import { getTeacherInfo } from "../controller/authcontroller.js";
 
 const router = express.Router();
 
@@ -20,4 +25,9 @@ router.get("/course/:courseId", getCourseEnrollments);
 // Delete an enrollment
 router.delete("/:id", deleteEnrollment);
 
+router.post("/teacher/create", createTeacherEnrollment);
+
+router.get("/teacher/:courseId", getTeacherEnrollments);
+
+router.get("/teacher/info/:teacherId", getTeacherInfo);
 export default router;

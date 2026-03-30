@@ -1,39 +1,37 @@
 import Message from "../model/Message.js";
-import Query from "../model/Query.js";
 
-// Get messages of a query
 export const getMessages = async (req, res) => {
+  const { studentId, teacherId } = req.params;
+
+  const chat_id = `${studentId}_${teacherId}`;
+
   try {
-    const { queryId } = req.params;
-
-    const messages = await Message.find({
-      query_id: queryId,
-    }).sort({ createdAt: 1 });
-
-    res.status(200).json(messages);
-  } catch (error) {
-    res.status(500).json({ msg: "Failed to fetch messages" });
+    const messages = await Message.find({ chat_id }).sort({ createdAt: 1 });
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch messages" });
   }
 };
-
-// Send message
 export const sendMessage = async (req, res) => {
+  const { sender_id, sender_role, student_id, teacher_id, message } = req.body;
+
+  if (!student_id || !teacher_id || !message) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
+  // chat_id always consistent
+  const chat_id = `${student_id}_${teacher_id}`;
+
   try {
-    const { query_id, sender_id, sender_role, message } = req.body;
-
-    if (!query_id || !sender_id || !sender_role || !message) {
-      return res.status(400).json({ msg: "All fields required" });
-    }
-
-    const newMessage = await Message.create({
-      query_id,
+    const newMsg = await Message.create({
+      chat_id,
       sender_id,
       sender_role,
       message,
     });
 
-    res.status(201).json(newMessage);
-  } catch (error) {
-    res.status(500).json({ msg: "Message sending failed" });
+    res.json({ success: true, data: newMsg });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to send message" });
   }
 };

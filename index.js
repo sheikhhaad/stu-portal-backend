@@ -23,6 +23,7 @@ app.use(
       "https://stu-portal-frontend.vercel.app",
       "https://teacher-portal-eta.vercel.app",
       "http://localhost:3000",
+      "http://localhost:3001",
     ],
     credentials: true,
   }),

@@ -176,16 +176,15 @@ export const getTeacher = async (req, res) => {
   }
 };
 
-
 export const getTeacherByCourseId = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    const { courseId } = req.params;
+    console.log(courseId);
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
       return res.status(400).json({ msg: "Invalid course id" });
     }
 
-    const teacher = await Teacher.findOne({ course_id: id });
+    const teacher = await Teacher.findOne({ course_id: courseId });
 
     if (!teacher) {
       return res.status(404).json({ msg: "Teacher not found" });
@@ -195,5 +194,26 @@ export const getTeacherByCourseId = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Failed to fetch teacher" });
+  }
+};
+
+export const getTeacherInfo = async (req, res) => {
+  try {
+    const { teacherId } = req.params;
+
+    if (!teacherId) {
+      return res.status(400).json({ msg: "teacherId required" });
+    }
+
+    const teacher = await Teacher.findById(teacherId);
+
+    if (!teacher) {
+      return res.status(404).json({ msg: "Teacher not found" });
+    }
+
+    res.status(200).json({ teacher });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Failed to fetch teacher info" });
   }
 };

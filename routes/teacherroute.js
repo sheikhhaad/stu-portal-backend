@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  getTeacherByCourseId,
+  // getTeacherByCourseId,
   getTeacher,
   loginTeacher,
   registerTeacher,
@@ -12,6 +12,6 @@ const router = express.Router();
 router.post("/teacher/register", registerTeacher);
 router.post("/teacher/login", loginTeacher);
 router.get("/teacher/me", authMiddleware, getTeacher);
-router.get("/teacher/:id",authMiddleware, getTeacherByCourseId);
+// router.get("/course/:courseId",authMiddleware, getTeacherByCourseId);
 
 export default router;

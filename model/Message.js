@@ -2,9 +2,8 @@ import mongoose from "mongoose";
 
 const messageSchema = new mongoose.Schema(
   {
-    query_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Query",
+    chat_id: {
+      type: String,
       required: true,
     },
     sender_id: {
@@ -14,12 +13,10 @@ const messageSchema = new mongoose.Schema(
     sender_role: {
       type: String,
       enum: ["student", "teacher"],
-      required: true,
     },
     message: {
       type: String,
       required: true,
-      trim: true,
     },
   },
   { timestamps: true },
