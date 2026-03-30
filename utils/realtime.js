@@ -4,7 +4,15 @@ export let io; // export to share across controllers
 
 export const initSocket = (server) => {
   io = new Server(server, {
-    cors: { origin: "http://localhost:3000" }, // React frontend
+    cors: {
+      origin: [
+        "http://localhost:3000",
+        "https://stu-portal-frontend.vercel.app",
+        "https://teacher-portal-eta.vercel.app",
+      ],
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
   });
 
   io.on("connection", (socket) => {
