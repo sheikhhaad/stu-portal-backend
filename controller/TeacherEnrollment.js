@@ -1,4 +1,5 @@
 import TeacherEnrollment from "../model/TeacherEnrollment.js";
+import { sendRealtime } from "../utils/realtime.js";
 
 export const createTeacherEnrollment = async (req, res) => {
   try {
@@ -10,6 +11,10 @@ export const createTeacherEnrollment = async (req, res) => {
       teacher_id,
       course_id,
     });
+    
+    // 🔥 realtime
+    sendRealtime("new_teacher_enrollment", newTeacherEnrollment);
+
     res.status(201).json({ teacherEnrollment: newTeacherEnrollment });
   } catch (error) {
     console.error(error);

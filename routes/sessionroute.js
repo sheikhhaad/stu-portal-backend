@@ -1,6 +1,7 @@
 import express from "express";
 import {
   bookSlot,
+  deleteSlotAndSessions,
   getallSession,
   getSessionBySlotId,
   getSessionByStudentSlotId,
@@ -16,4 +17,6 @@ router.get("/fetch/all", getallSession);
 router.get("/teacher/:teacherId", getTeacherSession);
 
 router.put("/:sessionId", updateSessionStatus);
+router.delete("/slot-with-sessions/:slotId", deleteSlotAndSessions); // New endpoint
+
 export default router;

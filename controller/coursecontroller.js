@@ -1,4 +1,5 @@
 import Course from "../model/CourseModel.js";
+import { sendRealtime } from "../utils/realtime.js";
 
 // Create
 export const createCourse = async (req, res) => {
@@ -16,6 +17,9 @@ export const createCourse = async (req, res) => {
       time,
       description,
     });
+
+    // 🔥 realtime
+    sendRealtime("new_course", newCourse);
 
     res.status(201).json({ course: newCourse });
   } catch (error) {
@@ -60,6 +64,9 @@ export const updateCourse = async (req, res) => {
       return res.status(404).json({ msg: "Course not found" });
     }
 
+    // 🔥 realtime
+    sendRealtime("update_course", updated);
+
     res.status(200).json({ course: updated });
   } catch (error) {
     res.status(500).json({ msg: "Failed to update course" });
@@ -74,6 +81,9 @@ export const deleteCourse = async (req, res) => {
     if (!deleted) {
       return res.status(404).json({ msg: "Course not found" });
     }
+
+    // 🔥 realtime
+    sendRealtime("delete_course", { id: req.params.id });
 
     res.status(200).json({ msg: "Course deleted" });
   } catch (error) {
