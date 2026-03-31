@@ -7,6 +7,7 @@ export const initSocket = (server) => {
     cors: {
       origin: [
         "http://localhost:3000",
+        "http://localhost:3001",
         "https://stu-portal-frontend.vercel.app",
         "https://teacher-portal-eta.vercel.app",
       ],
