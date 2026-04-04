@@ -24,14 +24,12 @@ const server = http.createServer(app);
 connectDB();
 
 // CORS
-const allowedOrigins = process.env.FRONTEND_URL 
-  ? process.env.FRONTEND_URL.split(",") 
-  : [
-      "https://stu-portal-frontend.vercel.app",
-      "https://teacher-portal-eta.vercel.app",
-      "http://localhost:3000",
-      "http://localhost:3001",
-    ];
+const allowedOrigins = [
+  "https://stu-portal-frontend.vercel.app",
+  "https://teacher-portal-eta.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:3001",
+];
 
 app.use(
   cors({
