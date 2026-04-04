@@ -1,7 +1,7 @@
 import SessionBooking from "../model/SessionModel.js";
 import { createZoomMeeting } from "../utils/zoom.js";
 import TeacherAvailability from "../model/TeacherAvailability.js";
-import { sendRealtime } from "../utils/realtime.js";
+import { sendToUser, sendRealtime } from "../utils/realtime.js";
 
 export const bookSlot = async (req, res) => {
   try {
@@ -69,14 +69,22 @@ export const bookSlot = async (req, res) => {
     slot.booked_at = new Date();
     await slot.save();
 
-    // 🔥 Send realtime updates
-    sendRealtime("new_session_request", {
+    // 🔥 Send realtime updates - Targeted
+    sendToUser(teacher_id, "new_session_request", {
       session,
       slot: slot,
       teacher_id: teacher_id,
       student_id: student_id,
     });
 
+    sendToUser(student_id, "new_session_request", {
+      session,
+      slot: slot,
+      teacher_id: teacher_id,
+      student_id: student_id,
+    });
+
+    // Slots are public so keep this generic or send to all
     sendRealtime("slot_update", slot);
 
     res.json({
@@ -173,8 +181,14 @@ export const updateSessionStatus = async (req, res) => {
 
     await session.save();
 
-    // 🔥 Send realtime update
-    sendRealtime("update_session_status", {
+    // 🔥 Send realtime update - Targeted
+    sendToUser(session.teacher_id, "update_session_status", {
+      session,
+      teacher_id: session.teacher_id,
+      student_id: session.student_id,
+    });
+
+    sendToUser(session.student_id, "update_session_status", {
       session,
       teacher_id: session.teacher_id,
       student_id: session.student_id,
@@ -215,17 +229,20 @@ export const deleteSlotAndSessions = async (req, res) => {
     // Delete the slot
     await TeacherAvailability.findByIdAndDelete(slotId);
 
-    // 🔥 Send realtime updates
-    sendRealtime("delete_slot", {
+    // 🔥 Send realtime updates - Targeted to the teacher
+    sendToUser(slot.teacher_id, "delete_slot", {
       id: slotId,
       teacherId: slot.teacher_id,
       sessions: sessions.map((s) => s._id),
     });
 
-    sendRealtime("slot_deleted_with_sessions", {
-      slotId,
-      teacherId: slot.teacher_id,
-      sessionIds: sessions.map((s) => s._id),
+    // Notify all affected students
+    sessions.forEach(session => {
+      sendToUser(session.student_id, "slot_deleted_with_sessions", {
+        slotId,
+        teacherId: slot.teacher_id,
+        sessionId: session._id,
+      });
     });
 
     res.json({

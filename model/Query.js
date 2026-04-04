@@ -34,5 +34,9 @@ const querySchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+querySchema.index({ student_id: 1 });
+querySchema.index({ teacher_id: 1 });
+querySchema.index({ course_id: 1 });
+
 const Query = mongoose.model("Query", querySchema);
 export default Query;

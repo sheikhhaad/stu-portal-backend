@@ -1,6 +1,6 @@
 // controllers/messageController.js
 import Message from "../model/Message.js";
-import { sendRealtime } from "../utils/realtime.js";
+import { sendToChat } from "../utils/realtime.js";
 
 // GET chat messages for a teacher-student pair
 export const getMessages = async (req, res) => {
@@ -34,9 +34,7 @@ export const sendMessage = async (req, res) => {
       message,
     });
 
-    // ✅ Fixed: was "new_message" but frontend listened to "receive_message"
-    // Both sides now use "receive_message"
-    sendRealtime("receive_message", newMsg);
+    sendToChat(chat_id, "receive_message", newMsg);
 
     res.json({ success: true, data: newMsg });
   } catch (err) {

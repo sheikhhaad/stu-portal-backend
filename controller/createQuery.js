@@ -1,6 +1,6 @@
 // controllers/queryController.js
 import Query from "../model/Query.js";
-import { sendRealtime } from "../utils/realtime.js";
+import { sendToUser } from "../utils/realtime.js";
 
 // CREATE query
 export const createQuery = async (req, res) => {
@@ -19,7 +19,8 @@ export const createQuery = async (req, res) => {
       course_id,
     });
 
-    sendRealtime("new_query", newQuery);
+    sendToUser(teacher_id, "new_query", newQuery);
+    sendToUser(student_id, "new_query", newQuery);
 
     res.status(201).json(newQuery);
   } catch (error) {
@@ -89,7 +90,8 @@ export const updateQuery = async (req, res) => {
       return res.status(404).json({ msg: "Query not found" });
     }
 
-    sendRealtime("update_query", updatedQuery);
+    sendToUser(updatedQuery.teacher_id, "update_query", updatedQuery);
+    sendToUser(updatedQuery.student_id, "update_query", updatedQuery);
 
     res.json(updatedQuery);
   } catch (err) {
@@ -109,7 +111,8 @@ export const deleteQuery = async (req, res) => {
       return res.status(404).json({ msg: "Query not found" });
     }
 
-    sendRealtime("delete_query", { _id: id });
+    sendToUser(deleted.teacher_id, "delete_query", { _id: id });
+    sendToUser(deleted.student_id, "delete_query", { _id: id });
 
     res.json({ msg: "Query deleted successfully" });
   } catch (err) {

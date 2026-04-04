@@ -71,4 +71,7 @@ sessionBookingSchema.index(
   },
 );
 
+sessionBookingSchema.index({ student_id: 1 });
+sessionBookingSchema.index({ teacher_id: 1 });
+
 export default mongoose.model("SessionBooking", sessionBookingSchema);
