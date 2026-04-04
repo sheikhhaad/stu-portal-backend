@@ -6,6 +6,7 @@ const studentSchema = new mongoose.Schema(
     password: String,
     email: String,
     cnic: String,
+    name: String,
   },
   { timestamps: true },
 );

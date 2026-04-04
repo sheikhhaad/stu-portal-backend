@@ -3,10 +3,12 @@ import sendLoginAlert from "../utils/loginAlert.js";
 import Teacher from "../model/TeacherModel.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
-export const registerStudent = async (req, res) => {
-  const { rollNumber, password, email, cnic } = req.body;
 
-  if (!rollNumber || !password || !email || !cnic) {
+
+export const registerStudent = async (req, res) => {
+  const { rollNumber, password, email, cnic ,name } = req.body;
+
+  if (!rollNumber || !password || !email || !cnic || !name) {
     return res.status(400).json({ msg: "All fields required" });
   }
 
@@ -22,6 +24,7 @@ export const registerStudent = async (req, res) => {
       password,
       email,
       cnic,
+      name,
     });
 
     res.status(201).json({

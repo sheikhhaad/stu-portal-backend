@@ -41,3 +41,35 @@ export const getTeacherEnrollments = async (req, res) => {
     res.status(500).json({ msg: "Failed to fetch teacher enrollments" });
   }
 };
+
+
+export const getAllTeacherEnrollments = async (req, res) => {
+  try {
+    const teacherEnrollments = await TeacherEnrollment.find();
+    res.status(200).json({ teacherEnrollments });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Failed to fetch teacher enrollments" });
+  }
+};
+
+
+export const getTeacherById = async (req, res) => {
+  try {
+    const { teacherId } = req.params;
+
+    if (!teacherId) {
+      return res.status(400).json({ msg: "teacherId required" });
+    }
+
+    const teacherEnrollments = await TeacherEnrollment.find({
+      teacher_id: teacherId,
+    });
+    // .populate("teacher_id");
+
+    res.status(200).json({ teacherEnrollments });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Failed to fetch teacher enrollments" });
+  }
+};

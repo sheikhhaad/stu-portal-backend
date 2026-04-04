@@ -7,7 +7,9 @@ import {
 } from "../controller/enrollementcontroller.js";
 import {
   createTeacherEnrollment,
+  getAllTeacherEnrollments,
   getTeacherEnrollments,
+  getTeacherById,
 } from "../controller/TeacherEnrollment.js";
 import { getTeacherInfo } from "../controller/authcontroller.js";
 
@@ -27,6 +29,8 @@ router.delete("/:id", deleteEnrollment);
 
 router.post("/teacher/create", createTeacherEnrollment);
 
+router.get("/teacher/all", getAllTeacherEnrollments);
+router.get("/teacher/all/:teacherId", getTeacherById);
 router.get("/teacher/:courseId", getTeacherEnrollments);
 
 router.get("/teacher/info/:teacherId", getTeacherInfo);
