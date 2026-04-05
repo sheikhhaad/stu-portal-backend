@@ -1,5 +1,4 @@
 import TeacherEnrollment from "../model/TeacherEnrollment.js";
-import { sendRealtime } from "../utils/realtime.js";
 
 export const createTeacherEnrollment = async (req, res) => {
   try {
@@ -11,9 +10,8 @@ export const createTeacherEnrollment = async (req, res) => {
       teacher_id,
       course_id,
     });
-    
+
     // 🔥 realtime
-    sendRealtime("new_teacher_enrollment", newTeacherEnrollment);
 
     res.status(201).json({ teacherEnrollment: newTeacherEnrollment });
   } catch (error) {
@@ -42,7 +40,6 @@ export const getTeacherEnrollments = async (req, res) => {
   }
 };
 
-
 export const getAllTeacherEnrollments = async (req, res) => {
   try {
     const teacherEnrollments = await TeacherEnrollment.find();
@@ -52,7 +49,6 @@ export const getAllTeacherEnrollments = async (req, res) => {
     res.status(500).json({ msg: "Failed to fetch teacher enrollments" });
   }
 };
-
 
 export const getTeacherById = async (req, res) => {
   try {

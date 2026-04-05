@@ -1,6 +1,6 @@
 // controllers/messageController.js
 import Message from "../model/Message.js";
-import { sendToChat } from "../utils/realtime.js";
+import { getIO } from "../utils/socket.js"; // ✅ import socket instance
 
 // GET chat messages for a teacher-student pair
 export const getMessages = async (req, res) => {
@@ -16,7 +16,7 @@ export const getMessages = async (req, res) => {
   }
 };
 
-// SEND message
+// SEND message (with real‑time emit)
 export const sendMessage = async (req, res) => {
   const { sender_id, sender_role, student_id, teacher_id, message } = req.body;
 
@@ -34,7 +34,8 @@ export const sendMessage = async (req, res) => {
       message,
     });
 
-    sendToChat(chat_id, "receive_message", newMsg);
+    const io = getIO();
+    io.emit("new_message", newMsg);
 
     res.json({ success: true, data: newMsg });
   } catch (err) {

@@ -1,5 +1,6 @@
 import express from "express";
 import http from "http";
+import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -14,13 +15,15 @@ import messageRoutes from "./routes/messageroute.js";
 import availableroutes from "./routes/availabilityRoutes.js";
 import announcementRoutes from "./routes/announcementroute.js";
 import sessionroutes from "./routes/sessionroute.js";
-import { initSocket } from "./utils/realtime.js";
+import { initSocket } from "./utils/socket.js";
 
 dotenv.config();
+
 const app = express();
 const server = http.createServer(app);
+const io = initSocket(server);
 
-// Database
+// DB
 connectDB();
 
 // CORS
@@ -38,12 +41,14 @@ app.use(
   }),
 );
 
-// Cookie & JSON
+
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+});
+
+// Middlewares
 app.use(cookieParser());
 app.use(express.json());
-
-// Initialize socket once
-initSocket(server);
 
 // Routes
 app.get("/", (req, res) => {
@@ -60,8 +65,9 @@ app.use("/api/enrollments", enrollmentRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/announcements", announcementRoutes);
 
-// Start server (socket attached)
+// Start server
 const PORT = process.env.PORT || 8000;
+
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

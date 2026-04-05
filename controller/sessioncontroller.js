@@ -1,7 +1,7 @@
 import SessionBooking from "../model/SessionModel.js";
 import { createZoomMeeting } from "../utils/zoom.js";
 import TeacherAvailability from "../model/TeacherAvailability.js";
-import { sendToUser, sendRealtime } from "../utils/realtime.js";
+import { getIO } from "../utils/socket.js"; // ✅ import socket instance
 
 export const bookSlot = async (req, res) => {
   try {
@@ -69,23 +69,11 @@ export const bookSlot = async (req, res) => {
     slot.booked_at = new Date();
     await slot.save();
 
-    // 🔥 Send realtime updates - Targeted
-    sendToUser(teacher_id, "new_session_request", {
-      session,
-      slot: slot,
-      teacher_id: teacher_id,
-      student_id: student_id,
-    });
-
-    sendToUser(student_id, "new_session_request", {
-      session,
-      slot: slot,
-      teacher_id: teacher_id,
-      student_id: student_id,
-    });
-
-    // Slots are public so keep this generic or send to all
-    sendRealtime("slot_update", slot);
+    const io = getIO();
+    // Emit to teacher (and student) that a new session request has been created
+    io.emit("session_booked", session);
+    // Optionally emit to a specific room (e.g., teacher room) for better efficiency
+    // io.to(`teacher_${teacher_id}`).emit("session_booked", session);
 
     res.json({
       message: "Request sent successfully",
@@ -181,18 +169,12 @@ export const updateSessionStatus = async (req, res) => {
 
     await session.save();
 
-    // 🔥 Send realtime update - Targeted
-    sendToUser(session.teacher_id, "update_session_status", {
-      session,
-      teacher_id: session.teacher_id,
-      student_id: session.student_id,
-    });
-
-    sendToUser(session.student_id, "update_session_status", {
-      session,
-      teacher_id: session.teacher_id,
-      student_id: session.student_id,
-    });
+    const io = getIO();
+    // Emit the updated session to both student and teacher
+    io.emit("session_updated", session);
+    // Optional: emit to specific room
+    // io.to(`student_${session.student_id}`).emit("session_updated", session);
+    // io.to(`teacher_${session.teacher_id}`).emit("session_updated", session);
 
     res.json(session);
   } catch (error) {
@@ -206,7 +188,7 @@ export const updateSessionStatus = async (req, res) => {
   }
 };
 
-// 🔥 New: Delete slot and its associated sessions
+// Delete slot and its associated sessions (with real-time emit)
 export const deleteSlotAndSessions = async (req, res) => {
   try {
     const { slotId } = req.params;
@@ -220,7 +202,7 @@ export const deleteSlotAndSessions = async (req, res) => {
     // Find all sessions for this slot
     const sessions = await SessionBooking.find({ slot_id: slotId });
 
-    // Delete all associated sessions
+    // Delete all associated  sessions
     if (sessions.length > 0) {
       await SessionBooking.deleteMany({ slot_id: slotId });
       console.log(`Deleted ${sessions.length} sessions for slot ${slotId}`);
@@ -229,21 +211,11 @@ export const deleteSlotAndSessions = async (req, res) => {
     // Delete the slot
     await TeacherAvailability.findByIdAndDelete(slotId);
 
-    // 🔥 Send realtime updates - Targeted to the teacher
-    sendToUser(slot.teacher_id, "delete_slot", {
-      id: slotId,
-      teacherId: slot.teacher_id,
-      sessions: sessions.map((s) => s._id),
-    });
-
-    // Notify all affected students
-    sessions.forEach(session => {
-      sendToUser(session.student_id, "slot_deleted_with_sessions", {
-        slotId,
-        teacherId: slot.teacher_id,
-        sessionId: session._id,
-      });
-    });
+    const io = getIO();
+    for (const session of sessions) {
+      io.emit("session_deleted", { id: session._id });
+    }
+    io.emit("slot_deleted", { slotId });
 
     res.json({
       message: "Slot and associated sessions deleted successfully",

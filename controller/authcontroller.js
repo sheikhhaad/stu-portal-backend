@@ -4,9 +4,8 @@ import Teacher from "../model/TeacherModel.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
-
 export const registerStudent = async (req, res) => {
-  const { rollNumber, password, email, cnic ,name } = req.body;
+  const { rollNumber, password, email, cnic, name } = req.body;
 
   if (!rollNumber || !password || !email || !cnic || !name) {
     return res.status(400).json({ msg: "All fields required" });
@@ -111,7 +110,7 @@ export const getStudentById = async (req, res) => {
 
 export const registerTeacher = async (req, res) => {
   try {
-    const { name, email, password, course_id } = req.body;
+    const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ msg: "All fields required" });
@@ -127,7 +126,6 @@ export const registerTeacher = async (req, res) => {
       name,
       email,
       password,
-      course_id,
     });
 
     res.status(201).json(teacher);
@@ -179,26 +177,6 @@ export const getTeacher = async (req, res) => {
   }
 };
 
-export const getTeacherByCourseId = async (req, res) => {
-  try {
-    const { courseId } = req.params;
-    console.log(courseId);
-    if (!mongoose.Types.ObjectId.isValid(courseId)) {
-      return res.status(400).json({ msg: "Invalid course id" });
-    }
-
-    const teacher = await Teacher.findOne({ course_id: courseId });
-
-    if (!teacher) {
-      return res.status(404).json({ msg: "Teacher not found" });
-    }
-
-    res.status(200).json({ teacher });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Failed to fetch teacher" });
-  }
-};
 
 export const getTeacherInfo = async (req, res) => {
   try {

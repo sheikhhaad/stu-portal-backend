@@ -1,6 +1,6 @@
 // controllers/queryController.js
 import Query from "../model/Query.js";
-import { sendToUser } from "../utils/realtime.js";
+import { getIO } from "../utils/socket.js"; // ✅ import socket.io instance
 
 // CREATE query
 export const createQuery = async (req, res) => {
@@ -19,8 +19,8 @@ export const createQuery = async (req, res) => {
       course_id,
     });
 
-    sendToUser(teacher_id, "new_query", newQuery);
-    sendToUser(student_id, "new_query", newQuery);
+    const io = getIO();
+    io.emit("new_query", newQuery);
 
     res.status(201).json(newQuery);
   } catch (error) {
@@ -83,16 +83,15 @@ export const updateQuery = async (req, res) => {
     const updatedQuery = await Query.findByIdAndUpdate(
       id,
       { answer, status },
-      { new: true }, // ✅ fixed: was returnDocument: "after" which is invalid in Mongoose
+      { new: true }, // ✅ corrected option
     );
 
     if (!updatedQuery) {
       return res.status(404).json({ msg: "Query not found" });
     }
 
-    sendToUser(updatedQuery.teacher_id, "update_query", updatedQuery);
-    sendToUser(updatedQuery.student_id, "update_query", updatedQuery);
-
+    const io = getIO();
+    io.emit("update_query", updatedQuery);
     res.json(updatedQuery);
   } catch (err) {
     console.error(err);
@@ -111,9 +110,8 @@ export const deleteQuery = async (req, res) => {
       return res.status(404).json({ msg: "Query not found" });
     }
 
-    sendToUser(deleted.teacher_id, "delete_query", { _id: id });
-    sendToUser(deleted.student_id, "delete_query", { _id: id });
-
+    const io = getIO();
+    io.emit("delete_query", { id });
     res.json({ msg: "Query deleted successfully" });
   } catch (err) {
     console.error(err);

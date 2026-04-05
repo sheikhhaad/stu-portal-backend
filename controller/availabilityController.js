@@ -1,5 +1,4 @@
 import TeacherAvailability from "../model/TeacherAvailability.js";
-import { sendRealtime } from "../utils/realtime.js";
 
 // Create Slot (Teacher)
 export const createAvailability = async (req, res) => {
@@ -25,12 +24,6 @@ export const createAvailability = async (req, res) => {
       date,
       start_time,
       end_time,
-    });
-
-    // 🔥 Send real-time update with full slot data
-    sendRealtime("new_slot", {
-      slot: slot,
-      teacherId: teacher_id,
     });
 
     res.status(201).json(slot);
@@ -60,13 +53,6 @@ export const deleteAvailability = async (req, res) => {
   try {
     const { id } = req.params;
     const deletedSlot = await TeacherAvailability.findByIdAndDelete(id);
-    if (deletedSlot) {
-      // 🔥 Send real-time update with slot ID and teacher ID
-      sendRealtime("delete_slot", {
-        id: deletedSlot._id,
-        teacherId: deletedSlot.teacher_id,
-      });
-    }
     res.json(deletedSlot);
   } catch (error) {
     res.status(500).json({ message: error.message });

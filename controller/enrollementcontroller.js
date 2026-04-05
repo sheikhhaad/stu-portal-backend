@@ -1,5 +1,4 @@
 import Enrollment from "../model/enrollnmentModel.js";
-import { sendRealtime } from "../utils/realtime.js";
 
 // Create new enrollment
 export const createEnrollment = async (req, res) => {
@@ -11,9 +10,6 @@ export const createEnrollment = async (req, res) => {
     }
 
     const newEnrollment = await Enrollment.create({ student_id, course_id });
-    
-    // 🔥 realtime
-    sendRealtime("new_enrollment", newEnrollment);
 
     res.status(201).json({ enrollment: newEnrollment });
   } catch (error) {
@@ -60,7 +56,6 @@ export const deleteEnrollment = async (req, res) => {
     if (!deleted) return res.status(404).json({ msg: "Enrollment not found" });
 
     // 🔥 realtime
-    sendRealtime("delete_enrollment", { id: req.params.id });
 
     res.status(200).json({ msg: "Enrollment deleted" });
   } catch (error) {
