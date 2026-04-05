@@ -83,7 +83,7 @@ export const updateQuery = async (req, res) => {
     const updatedQuery = await Query.findByIdAndUpdate(
       id,
       { answer, status },
-      { new: true }, // ✅ corrected option
+      { returnDocument: "after" }, // ✅ corrected option
     );
 
     if (!updatedQuery) {

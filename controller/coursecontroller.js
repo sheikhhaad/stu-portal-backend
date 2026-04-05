@@ -53,7 +53,7 @@ export const getSingleCourse = async (req, res) => {
 export const updateCourse = async (req, res) => {
   try {
     const updated = await Course.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
+      returnDocument: "after",
     });
 
     if (!updated) {
