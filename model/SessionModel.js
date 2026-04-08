@@ -45,7 +45,9 @@ const sessionBookingSchema = new mongoose.Schema(
     meeting_link: {
       type: String,
     },
-
+    roomName: {
+      type: String,
+    },
     meeting_id: {
       type: String,
     },

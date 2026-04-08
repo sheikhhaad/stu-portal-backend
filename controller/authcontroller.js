@@ -108,6 +108,22 @@ export const getStudentById = async (req, res) => {
   }
 };
 
+
+
+export const StudentInfoUpdate = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email ,phone} = req.body;
+    const student = await Student.findByIdAndUpdate(id, { name, email }, { new: true });
+    res.json(student);
+  } catch (error) {
+    console.error(error);
+    res.json({ msg: "Failed to update student" });
+  }
+}
+
+
+
 export const registerTeacher = async (req, res) => {
   try {
     const { name, email, password } = req.body;

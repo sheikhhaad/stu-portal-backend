@@ -5,6 +5,7 @@ import {
   loginStudent,
   logoutStudent,
   registerStudent,
+  StudentInfoUpdate,
 } from "../controller/authcontroller.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
@@ -15,6 +16,7 @@ router.post("/register", registerStudent);
 router.post("/logout", logoutStudent);
 router.get("/students", getAllStudent);
 router.get("/student/me", authMiddleware, getStudentById);
+router.put("/student/update/:id", authMiddleware, StudentInfoUpdate);
 
 router.post("/user", authMiddleware, (req, res) => {
   res.json({ message: "Access granted", user: req.user });

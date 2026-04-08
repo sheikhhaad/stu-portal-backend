@@ -1,9 +1,9 @@
 import express from "express";
 import {
   bookSlot,
-  deleteSlotAndSessions,
+  deleteSessions,
   getallSession,
-  getSessionBySlotId,
+  getSessionById,
   getSessionByStudentSlotId,
   getTeacherSession,
   updateSessionStatus,
@@ -11,12 +11,12 @@ import {
 const router = express.Router();
 
 router.put("/book/:slotId", bookSlot);
-router.get("/slot/:slotId", getSessionBySlotId);
+router.get("/:sessionId", getSessionById);
 router.get("/student/:studentId", getSessionByStudentSlotId);
 router.get("/fetch/all", getallSession);
 router.get("/teacher/:teacherId", getTeacherSession);
 
-router.put("/:sessionId", updateSessionStatus);
-router.delete("/slot-with-sessions/:slotId", deleteSlotAndSessions); // New endpoint
+router.put("/update/:sessionId", updateSessionStatus);
+router.delete("/delete/:sessionId", deleteSessions); // New endpoint
 
 export default router;
