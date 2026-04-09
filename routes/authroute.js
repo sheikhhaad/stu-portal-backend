@@ -8,15 +8,23 @@ import {
   StudentInfoUpdate,
 } from "../controller/authcontroller.js";
 import authMiddleware from "../middleware/authMiddleware.js";
+import multer from "multer";
 
 const router = express.Router();
+
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+});
+
 
 router.post("/login", loginStudent);
 router.post("/register", registerStudent);
 router.post("/logout", logoutStudent);
 router.get("/students", getAllStudent);
 router.get("/student/me", authMiddleware, getStudentById);
-router.put("/student/update/:id", authMiddleware, StudentInfoUpdate);
+router.put("/student/update/:id", upload.single("profilePic"), authMiddleware, StudentInfoUpdate);
 
 router.post("/user", authMiddleware, (req, res) => {
   res.json({ message: "Access granted", user: req.user });

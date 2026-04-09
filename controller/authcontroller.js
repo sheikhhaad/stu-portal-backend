@@ -3,6 +3,7 @@ import sendLoginAlert from "../utils/loginAlert.js";
 import Teacher from "../model/TeacherModel.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { uploadBufferToCloudinary } from "../middleware/upload.js";
 
 export const registerStudent = async (req, res) => {
   const { rollNumber, password, email, cnic, name } = req.body;
@@ -113,12 +114,25 @@ export const getStudentById = async (req, res) => {
 export const StudentInfoUpdate = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email ,phone} = req.body;
-    const student = await Student.findByIdAndUpdate(id, { name, email }, { new: true });
+    const { email, phone } = req.body;
+    const file = req.file;
+
+    let updateData = { email, phone };
+
+    if (file) {
+      const result = await uploadBufferToCloudinary(
+        file.buffer,
+        "profilePic",
+        file.originalname
+      );
+      updateData.profilePic = result.secure_url;
+    }
+
+    const student = await Student.findByIdAndUpdate(id, updateData, { new: true });
     res.json(student);
   } catch (error) {
     console.error(error);
-    res.json({ msg: "Failed to update student" });
+    res.status(500).json({ msg: "Failed to update student" });
   }
 }
 

@@ -8,6 +8,7 @@ const studentSchema = new mongoose.Schema(
     cnic: String,
     name: String,
     phone: String,
+    profilePic: String,
   },
   { timestamps: true },
 );
