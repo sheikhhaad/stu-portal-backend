@@ -109,33 +109,43 @@ export const getStudentById = async (req, res) => {
   }
 };
 
-
-
 export const StudentInfoUpdate = async (req, res) => {
   try {
     const { id } = req.params;
     const { email, phone } = req.body;
-    const file = req.file;
 
     let updateData = { email, phone };
 
-    if (file) {
+    // ✅ file check properly
+    if (req.file) {
       const result = await uploadBufferToCloudinary(
-        file.buffer,
+        req.file.buffer,
         "profilePic",
-        file.originalname
+        `student_${id}` // better unique name
       );
+
       updateData.profilePic = result.secure_url;
     }
 
-    const student = await Student.findByIdAndUpdate(id, updateData, { new: true });
-    res.json(student);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Failed to update student" });
-  }
-}
+    const student = await Student.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    );
 
+    res.status(200).json({
+      success: true,
+      student,
+    });
+  } catch (error) {
+    console.error("Update Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message || "Failed to update student",
+    });
+  }
+};
 
 
 export const registerTeacher = async (req, res) => {
