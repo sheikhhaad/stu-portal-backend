@@ -96,9 +96,23 @@ export const getAllStudent = async (req, res) => {
     res.json({ msg: "Failed to fetch students" });
   }
 };
-export const getStudentById = async (req, res) => {
+export const getStudent = async (req, res) => {
   try {
     const student = await Student.findOne({ _id: req.user.id });
+    if (!student) {
+      return res.status(404).json({ msg: "Student not found" });
+    }
+    res.status(200).json({ student });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Failed to fetch student" });
+  }
+};
+
+export const getStudentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const student = await Student.findOne({ _id: id });
     if (!student) {
       return res.status(404).json({ msg: "Student not found" });
     }
@@ -121,17 +135,15 @@ export const StudentInfoUpdate = async (req, res) => {
       const result = await uploadBufferToCloudinary(
         req.file.buffer,
         "profilePic",
-        `student_${id}` // better unique name
+        `student_${id}`, // better unique name
       );
 
       updateData.profilePic = result.secure_url;
     }
 
-    const student = await Student.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true }
-    );
+    const student = await Student.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
 
     res.status(200).json({
       success: true,
@@ -146,7 +158,6 @@ export const StudentInfoUpdate = async (req, res) => {
     });
   }
 };
-
 
 export const registerTeacher = async (req, res) => {
   try {
@@ -171,6 +182,42 @@ export const registerTeacher = async (req, res) => {
     res.status(201).json(teacher);
   } catch (error) {
     res.status(500).json({ msg: "Teacher registration failed" });
+  }
+};
+
+export const TeacherInfoUpdate = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email, phone } = req.body;
+
+    let updateData = { email, phone };
+
+    // ✅ file check properly
+    if (req.file) {
+      const result = await uploadBufferToCloudinary(
+        req.file.buffer,
+        "profilePic",
+        `teacher_${id}`, // better unique name
+      );
+
+      updateData.profilePic = result.secure_url;
+    }
+
+    const teacher = await Teacher.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
+
+    res.status(200).json({
+      success: true,
+      teacher,
+    });
+  } catch (error) {
+    console.error("Update Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message || "Failed to update teacher",
+    });
   }
 };
 
@@ -216,7 +263,6 @@ export const getTeacher = async (req, res) => {
     res.status(500).json({ msg: "Failed to fetch teacher" });
   }
 };
-
 
 export const getTeacherInfo = async (req, res) => {
   try {

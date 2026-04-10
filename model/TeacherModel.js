@@ -14,6 +14,8 @@ const teacherSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    profilePic: String,
+    phone: String,
   },
   { timestamps: true },
 );
