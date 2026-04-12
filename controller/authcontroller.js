@@ -4,6 +4,8 @@ import Teacher from "../model/TeacherModel.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { uploadBufferToCloudinary } from "../middleware/upload.js";
+import { generateOTP } from "../utils/sendOtp.js";
+import transporter from "../config/mail.js";
 
 export const registerStudent = async (req, res) => {
   const { rollNumber, password, email, cnic, name } = req.body;
@@ -159,6 +161,74 @@ export const StudentInfoUpdate = async (req, res) => {
   }
 };
 
+export const StudentresetPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ msg: "Email and new password required" });
+    }
+
+    const student = await Student.findOne({ email });
+    if (!student) {
+      return res.status(404).json({ msg: "Student not found" });
+    }
+
+    student.password = password;
+    await student.save();
+
+    res.status(200).json({ msg: "Password reset successful" });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.status(500).json({ msg: "Failed to reset password" });
+  }
+};
+
+export const studentOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const otp = generateOTP();
+
+    global.savedOtp = otp;
+    global.expiry = Date.now() + 5 * 60 * 1000;
+    let student = await Student.findOne({ email });
+    if (!student) {
+      return res.status(404).json({ msg: "Student not found" });
+    }
+    await transporter.sendMail({
+      to: email,
+      subject: "Your OTP Code",
+      text: `Your OTP is ${otp}`,
+    });
+
+    res.json({ message: "OTP sent successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error sending OTP" });
+  }
+};
+
+export const verifyStudentOtp = (req, res) => {
+  const { otp } = req.body;
+
+  if (!global.savedOtp || !global.expiry) {
+    return res.status(400).json({ message: "No OTP sent" });
+  }
+
+  if (Date.now() > global.expiry) {
+    return res.status(400).json({ message: "OTP expired" });
+  }
+
+  if (String(otp) !== global.savedOtp) {
+    return res.status(400).json({ message: "Invalid OTP" });
+  }
+
+  global.savedOtp = null;
+  global.expiry = null;
+
+  res.json({ message: "OTP verified successfully" });
+};
+
 export const registerTeacher = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -282,5 +352,72 @@ export const getTeacherInfo = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Failed to fetch teacher info" });
+  }
+};
+
+export const sendOtp = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const otp = generateOTP();
+
+    global.savedOtp = otp;
+    global.expiry = Date.now() + 5 * 60 * 1000;
+    let teacher = await Teacher.findOne({ email });
+    if (!teacher) {
+      return res.status(404).json({ msg: "Teacher not found" });
+    }
+    await transporter.sendMail({
+      to: email,
+      subject: "Your OTP Code",
+      text: `Your OTP is ${otp}`,
+    });
+
+    res.json({ message: "OTP sent successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error sending OTP" });
+  }
+};
+export const verifyOtp = (req, res) => {
+  const { otp } = req.body;
+
+  if (!global.savedOtp || !global.expiry) {
+    return res.status(400).json({ message: "No OTP sent" });
+  }
+
+  if (Date.now() > global.expiry) {
+    return res.status(400).json({ message: "OTP expired" });
+  }
+
+  if (String(otp) !== global.savedOtp) {
+    return res.status(400).json({ message: "Invalid OTP" });
+  }
+
+  global.savedOtp = null;
+  global.expiry = null;
+
+  res.json({ message: "OTP verified successfully" });
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ msg: "Email and new password required" });
+    }
+
+    const teacher = await Teacher.findOne({ email });
+    if (!teacher) {
+      return res.status(404).json({ msg: "Teacher not found" });
+    }
+
+    teacher.password = password;
+    await teacher.save();
+
+    res.status(200).json({ msg: "Password reset successful" });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.status(500).json({ msg: "Failed to reset password" });
   }
 };

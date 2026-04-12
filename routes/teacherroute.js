@@ -5,6 +5,9 @@ import {
   loginTeacher,
   registerTeacher,
   TeacherInfoUpdate,
+  sendOtp,
+  verifyOtp,
+  resetPassword,
 } from "../controller/authcontroller.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import multer from "multer";
@@ -17,6 +20,8 @@ const upload = multer({
 });
 
 router.post("/teacher/register", registerTeacher);
+router.post("/teacher/sendOtp", sendOtp);
+router.post("/teacher/verifyOtp", verifyOtp);
 router.post("/teacher/login", loginTeacher);
 router.get("/teacher/me", authMiddleware, getTeacher);
 // router.get("/course/:courseId",authMiddleware, getTeacherByCourseId);
@@ -26,5 +31,7 @@ router.put(
   upload.single("profilePic"),
   TeacherInfoUpdate,
 );
+
+router.post("/teacher/resetPassword", resetPassword);
 
 export default router;

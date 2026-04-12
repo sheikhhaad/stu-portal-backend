@@ -6,7 +6,12 @@ import {
   loginStudent,
   logoutStudent,
   registerStudent,
+  sendOtp,
   StudentInfoUpdate,
+  studentOtp,
+  StudentresetPassword,
+  verifyOtp,
+  verifyStudentOtp,
 } from "../controller/authcontroller.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import multer from "multer";
@@ -19,6 +24,8 @@ const upload = multer({
 });
 
 router.post("/login", loginStudent);
+router.post("/send-otp", studentOtp);
+router.post("/verify-otp", verifyStudentOtp);
 router.post("/register", registerStudent);
 router.post("/logout", logoutStudent);
 router.get("/students", getAllStudent);
@@ -29,6 +36,7 @@ router.put(
   upload.single("profilePic"),
   StudentInfoUpdate,
 );
+router.post("/student/resetPassword", StudentresetPassword);
 router.get("/student/:id", authMiddleware, getStudentById);
 
 router.post("/user", authMiddleware, (req, res) => {
