@@ -163,13 +163,13 @@ export const StudentInfoUpdate = async (req, res) => {
 
 export const StudentresetPassword = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password ,rollNumber } = req.body;
 
-    if (!email || !password) {
+    if (!email || !password ) {
       return res.status(400).json({ msg: "Email and new password required" });
     }
 
-    const student = await Student.findOne({ email });
+    const student = await Student.findOne({ email,rollNumber});
     if (!student) {
       return res.status(404).json({ msg: "Student not found" });
     }
@@ -186,12 +186,12 @@ export const StudentresetPassword = async (req, res) => {
 
 export const studentOtp = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email ,rollNumber } = req.body;
+    console.log(email,rollNumber);
     const otp = generateOTP();
-
     global.savedOtp = otp;
     global.expiry = Date.now() + 5 * 60 * 1000;
-    let student = await Student.findOne({ email });
+    let student = await Student.findOne({ email,rollNumber });
     if (!student) {
       return res.status(404).json({ msg: "Student not found" });
     }
@@ -208,8 +208,8 @@ export const studentOtp = async (req, res) => {
   }
 };
 
-export const verifyStudentOtp = (req, res) => {
-  const { otp } = req.body;
+export const verifyStudentOtp = async (req, res) => {
+  const { otp ,email} = req.body;
 
   if (!global.savedOtp || !global.expiry) {
     return res.status(400).json({ message: "No OTP sent" });
@@ -222,7 +222,10 @@ export const verifyStudentOtp = (req, res) => {
   if (String(otp) !== global.savedOtp) {
     return res.status(400).json({ message: "Invalid OTP" });
   }
-
+  let student = await Student.findOne({ email});
+  if (!student) {
+    return res.status(404).json({ msg: "Student not found" });
+  }
   global.savedOtp = null;
   global.expiry = null;
 
@@ -378,8 +381,8 @@ export const sendOtp = async (req, res) => {
     res.status(500).json({ message: "Error sending OTP" });
   }
 };
-export const verifyOtp = (req, res) => {
-  const { otp } = req.body;
+export const verifyOtp = async(req, res) => {
+  const { otp ,email } = req.body;
 
   if (!global.savedOtp || !global.expiry) {
     return res.status(400).json({ message: "No OTP sent" });
@@ -392,6 +395,10 @@ export const verifyOtp = (req, res) => {
   if (String(otp) !== global.savedOtp) {
     return res.status(400).json({ message: "Invalid OTP" });
   }
+  let teacher = await Teacher.findOne({ email });
+    if (!teacher) {
+      return res.status(404).json({ msg: "Teacher not found" });
+    }
 
   global.savedOtp = null;
   global.expiry = null;
