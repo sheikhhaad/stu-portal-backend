@@ -7,18 +7,25 @@ import { uploadBufferToCloudinary } from "../middleware/upload.js";
 import { generateOTP } from "../utils/sendOtp.js";
 import transporter from "../config/mail.js";
 
-export const registerStudent = async (req, res) => {
-  const { rollNumber, password, email, cnic, name } = req.body;
+import bcrypt from "bcrypt";
 
-  if (!rollNumber || !password || !email || !cnic || !name) {
+export const registerStudent = async (req, res) => {
+  const { rollNumber, password, email, cnic, name, phone } = req.body;
+
+  // validation
+  if (!rollNumber || !password || !email || !cnic || !name || !phone) {
     return res.status(400).json({ msg: "All fields required" });
   }
 
   try {
-    const exists = await Student.findOne({ rollNumber });
+    const exists = await Student.findOne({
+      $or: [{ rollNumber }, { email }, { cnic }],
+    });
 
     if (exists) {
-      return res.status(400).json({ msg: "Student exists" });
+      return res.status(400).json({
+        msg: "Student already exists with this roll number, email, or CNIC",
+      });
     }
 
     const student = await Student.create({
@@ -27,6 +34,15 @@ export const registerStudent = async (req, res) => {
       email,
       cnic,
       name,
+      phone,
+    });
+
+    // 6. Send email
+    await transporter.sendMail({
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Registration Alert",
+      text: `Your account has been created successfully with roll number ${rollNumber}`,
     });
 
     res.status(201).json({
@@ -34,10 +50,10 @@ export const registerStudent = async (req, res) => {
       student,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ msg: "Registration failed" });
   }
 };
-
 export const loginStudent = async (req, res) => {
   const { rollNumber, password } = req.body;
 
@@ -163,13 +179,13 @@ export const StudentInfoUpdate = async (req, res) => {
 
 export const StudentresetPassword = async (req, res) => {
   try {
-    const { email, password ,rollNumber } = req.body;
+    const { email, password, rollNumber } = req.body;
 
-    if (!email || !password ) {
+    if (!email || !password) {
       return res.status(400).json({ msg: "Email and new password required" });
     }
 
-    const student = await Student.findOne({ email,rollNumber});
+    const student = await Student.findOne({ email, rollNumber });
     if (!student) {
       return res.status(404).json({ msg: "Student not found" });
     }
@@ -186,12 +202,12 @@ export const StudentresetPassword = async (req, res) => {
 
 export const studentOtp = async (req, res) => {
   try {
-    const { email ,rollNumber } = req.body;
-    console.log(email,rollNumber);
+    const { email, rollNumber } = req.body;
+    console.log(email, rollNumber);
     const otp = generateOTP();
     global.savedOtp = otp;
     global.expiry = Date.now() + 5 * 60 * 1000;
-    let student = await Student.findOne({ email,rollNumber });
+    let student = await Student.findOne({ email, rollNumber });
     if (!student) {
       return res.status(404).json({ msg: "Student not found" });
     }
@@ -209,7 +225,7 @@ export const studentOtp = async (req, res) => {
 };
 
 export const verifyStudentOtp = async (req, res) => {
-  const { otp ,email} = req.body;
+  const { otp, email } = req.body;
 
   if (!global.savedOtp || !global.expiry) {
     return res.status(400).json({ message: "No OTP sent" });
@@ -222,7 +238,7 @@ export const verifyStudentOtp = async (req, res) => {
   if (String(otp) !== global.savedOtp) {
     return res.status(400).json({ message: "Invalid OTP" });
   }
-  let student = await Student.findOne({ email});
+  let student = await Student.findOne({ email });
   if (!student) {
     return res.status(404).json({ msg: "Student not found" });
   }
@@ -381,8 +397,8 @@ export const sendOtp = async (req, res) => {
     res.status(500).json({ message: "Error sending OTP" });
   }
 };
-export const verifyOtp = async(req, res) => {
-  const { otp ,email } = req.body;
+export const verifyOtp = async (req, res) => {
+  const { otp, email } = req.body;
 
   if (!global.savedOtp || !global.expiry) {
     return res.status(400).json({ message: "No OTP sent" });
@@ -396,9 +412,9 @@ export const verifyOtp = async(req, res) => {
     return res.status(400).json({ message: "Invalid OTP" });
   }
   let teacher = await Teacher.findOne({ email });
-    if (!teacher) {
-      return res.status(404).json({ msg: "Teacher not found" });
-    }
+  if (!teacher) {
+    return res.status(404).json({ msg: "Teacher not found" });
+  }
 
   global.savedOtp = null;
   global.expiry = null;
