@@ -1,13 +1,38 @@
 import requestIp from "request-ip"
 import { UAParser } from "ua-parser-js"
-import geoip from "geoip-lite"
+import axios from "axios"
 import transporter from "../config/mail.js"
 
-const sendLoginAlert = async (req, email) => {
-  // 1. Get client IP
-  const ip = requestIp.getClientIp(req)
+const getClientIp = (req) => {
+  return (
+    req.headers["x-forwarded-for"]?.split(",")[0] ||
+    req.socket?.remoteAddress ||
+    requestIp.getClientIp(req) ||
+    "Unknown"
+  )
+}
 
-  // 2. Parse user-agent
+const getLocation = async (ip) => {
+  try {
+    if (!ip || ip === "127.0.0.1" || ip === "::1") {
+      return "Localhost"
+    }
+
+    const { data } = await axios.get(
+      `https://ipinfo.io/${ip}?token=${process.env.IPINFO_TOKEN}`
+    )
+
+    return `${data.city || "Unknown City"}, ${data.country || ""}`
+  } catch {
+    return "Unknown location"
+  }
+}
+
+const sendLoginAlert = async (req, email) => {
+  // 1. IP
+  const ip = getClientIp(req)
+
+  // 2. User agent
   const parser = new UAParser(req.headers["user-agent"])
   const result = parser.getResult()
 
@@ -18,16 +43,12 @@ const sendLoginAlert = async (req, email) => {
     ? `${result.device.vendor} ${result.device.model}`
     : `${browser} on ${os}`
 
-  // 3. Get location from IP
-  let location = "Localhost"
-  if (ip !== "127.0.0.1" && ip !== "::1") {
-    const geo = geoip.lookup(ip)
-    if (geo) location = `${geo.city || "Unknown City"}, ${geo.country}`
-  }
+  // 3. Location
+  const location = await getLocation(ip)
 
-  // 4. Format login time
+  // 4. Time
   const time = new Date().toLocaleString("en-US", {
-    timeZone: "Asia/Karachi", // Change to your preferred timezone
+    timeZone: "Asia/Karachi",
     weekday: "short",
     year: "numeric",
     month: "short",
@@ -38,7 +59,7 @@ const sendLoginAlert = async (req, email) => {
     hour12: false,
   })
 
-  // 5. Prepare alert email text
+  // 5. Email text
   const text = `
 New login detected
 
@@ -55,7 +76,7 @@ Time: ${time}
     from: process.env.EMAIL,
     to: email,
     subject: "Login Alert",
-    text
+    text,
   })
 }
 
