@@ -9,6 +9,7 @@ const studentSchema = new mongoose.Schema(
     name: String,
     phone: String,
     profilePic: String,
+    shazaib_student: Boolean,
   },
   { timestamps: true },
 );

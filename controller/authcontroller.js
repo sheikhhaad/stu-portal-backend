@@ -10,9 +10,9 @@ import transporter from "../config/mail.js";
 import bcrypt from "bcrypt";
 
 export const registerStudent = async (req, res) => {
-  const { rollNumber, password, email, cnic, name, phone } = req.body;
-
-  // validation
+  const { rollNumber, password, email, cnic, name, phone,shazaib_student } = req.body;
+  console.log(req.body)
+  // // validation
   if (!rollNumber || !password || !email || !cnic || !name || !phone) {
     return res.status(400).json({ msg: "All fields required" });
   }
@@ -34,7 +34,8 @@ export const registerStudent = async (req, res) => {
       email,
       cnic,
       name,
-      phone,
+      phone,  
+      shazaib_student: shazaib_student || false,
     });
 
     // 6. Send email
@@ -442,5 +443,20 @@ export const resetPassword = async (req, res) => {
   } catch (error) {
     console.error("Reset password error:", error);
     res.status(500).json({ msg: "Failed to reset password" });
+  }
+};
+
+
+
+export const getshazaibTeacher = async (req, res) => {
+  try {
+    const teacher = await Teacher.findOne({ name: "Shazaib Paracha" });
+    if (!teacher) {
+      return res.status(404).json({ msg: "Teacher not found" });
+    }
+    res.status(200).json({ teacher });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Failed to fetch teacher" });
   }
 };

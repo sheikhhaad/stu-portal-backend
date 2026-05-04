@@ -8,6 +8,7 @@ import {
   sendOtp,
   verifyOtp,
   resetPassword,
+  getshazaibTeacher,
 } from "../controller/authcontroller.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import multer from "multer";
@@ -33,5 +34,9 @@ router.put(
 );
 
 router.post("/teacher/resetPassword", resetPassword);
+// for shazaib paracha 
+
+router.get("/teacher/shazaibparacha", getshazaibTeacher);
+
 
 export default router;
